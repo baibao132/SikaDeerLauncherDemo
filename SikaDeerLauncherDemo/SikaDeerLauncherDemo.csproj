@@ -33,7 +33,7 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="SikaDeerLauncher, Version=2.2.3.0, Culture=neutral, PublicKeyToken=0310e85835d9e2d1, processorArchitecture=MSIL">
+    <Reference Include="SikaDeerLauncher, Version=2.2.3.0, Culture=neutral, PublicKeyToken=d24359967f04e947, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>D:\SikaDeerLauncher.dll</HintPath>
     </Reference>

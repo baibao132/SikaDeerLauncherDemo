@@ -5,6 +5,7 @@ using Gac;
 using SikaDeerLauncher.Minecraft;
 using System.IO;
 using System.Text;
+using System.Runtime.InteropServices;
 
 namespace SikaDeerLauncherDemo
 {
@@ -52,12 +53,17 @@ namespace SikaDeerLauncherDemo
             {
                 MessageBox.Show(ex.Message);
             }
-            AllTheExistingVersion[] all = tools.GetAllTheExistingVersion();//取本地所有版本，忽略不完整版本
+            AllTheExistingVersion[] all = new AllTheExistingVersion[0];
+            try
+            {
+               all = tools.GetAllTheExistingVersion();//取本地所有版本，忽略不完整版本
+            }
+            catch (SikaDeerLauncher.SikaDeerLauncherException ex) { }
+           
             if (all.Length != 0)
             {
                 foreach (var a in all)
                 {
-                    Console.WriteLine(a.IdVersion);
                     comboBox1.Items.Add(a.version);
                     version.Items.Add(a.version);
                     comboBox2.Items.Add(a.version);
@@ -96,6 +102,8 @@ namespace SikaDeerLauncherDemo
                 MCDownload ma = Minecraft.MCjsonDownload(listView1.Items[listView1.Items.IndexOf(listView1.FocusedItem)].Text);
                 download(ms.path,ms.Url, listView1.Items[listView1.Items.IndexOf(listView1.FocusedItem)].Text+".jar");
                 download(ma.path, ma.Url, listView1.Items[listView1.Items.IndexOf(listView1.FocusedItem)].Text+".json");
+                Console.WriteLine(ms.Url);
+                Console.WriteLine(ma.Url);
             }
             catch (ArgumentOutOfRangeException ex)
             {
@@ -202,9 +210,10 @@ namespace SikaDeerLauncherDemo
             {
                 ForgeList forge = tools.GetMaxForge(comboBox2.Text);//取版本最新forge版本
                 MCDownload mc = Minecraft.ForgeDownload(forge.version, forge.ForgeVersion);//取Forge下载网址
+                Console.WriteLine(mc.Url);
                 download(mc.path, mc.Url, "Forge");
                 intall = mc.path;
-                intallverison = mc.Url;
+                intallverison = comboBox2.Text;
             }
             catch (SikaDeerLauncher.SikaDeerLauncherException ex)
             {
@@ -341,6 +350,11 @@ namespace SikaDeerLauncherDemo
                 textBox2.Show();
                 return;
             }
+            if (comboBox3.SelectedIndex == 3)
+            {
+                textBox2.Show();
+                return;
+            }
 
         }
         private void TextBox6_TextChanged(object sender, EventArgs e)
@@ -388,6 +402,11 @@ namespace SikaDeerLauncherDemo
             {
                 arg += " " + hzcs.Text;
             }
+            if (TB.Text != "")
+            {
+                timer2.Interval = 2000;
+                timer2.Start();
+            }
             try
             {
                 game.ErrorEvent += new Game.ErrorDel(error);//错误事件
@@ -403,7 +422,13 @@ namespace SikaDeerLauncherDemo
                 if (comboBox3.SelectedIndex == 2)
                 {
                     Skin skin = tools.GetAuthlib_Injector("https://mcskin.i-creator.cn/api/yggdrasil", textBox1.Text, textBox2.Text);
-                    game.StartGame(version.Text, java.Text, Convert.ToInt32(RAM.Text), skin.NameItem[0].Name, skin.NameItem[1].uuid, skin.accessToken, "https://mcskin.i-creator.cn/api/yggdrasil", qzcs.Text, hzcs.Text);//外置登录启动游戏
+                    game.StartGame(version.Text, java.Text, Convert.ToInt32(RAM.Text), skin.NameItem[0].Name, skin.NameItem[1].uuid, skin.accessToken, "https://mcskin.i-creator.cn/api/yggdrasil", qzcs.Text, hzcs.Text,AuthenticationServerMode.yggdrasil);//外置登录启动游戏
+                }
+                if (comboBox3.SelectedIndex == 3)
+                {
+                    UnifiedPass UP = tools.GetUnifiedPass(ID.Text, textBox1.Text, textBox2.Text);
+                    game.StartGame(version.Text, java.Text, Convert.ToInt32(RAM.Text), UP.name, UP.id, UP.accessToken, ID.Text, qzcs.Text, hzcs.Text, AuthenticationServerMode.UnifiedPass);//外置登录启动游戏
+
                 }
             }
             catch (SikaDeerLauncher.SikaDeerLauncherException ex)
@@ -413,10 +438,12 @@ namespace SikaDeerLauncherDemo
         }
         private void error(Game.Error error)
         {
+            System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;
             textBox3.Text += error.Message + "\n";
         }
         private void log(Game.Log log)
         {
+            System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;
             textBox4.Text += log.Message + "\n";
         }
         private void Button12_Click(object sender, EventArgs e)
@@ -446,16 +473,23 @@ namespace SikaDeerLauncherDemo
             listView3.Items.Clear();
             try
             {
-            MCDownload[] mc = tools.GetMissingAsset(comboBox1.Text);
-            foreach (var v in mc)
-            {
-                listView3.Items.Add(new ListViewItem(new string[] { v.path, v.Url }));
+                MCDownload[] mc = tools.GetMissingAsset(comboBox1.Text);
+                foreach (var v in mc)
+                {
+                    listView3.Items.Add(new ListViewItem(new string[] { v.path, v.Url }));
+                }
             }
-        }
             catch (SikaDeerLauncher.SikaDeerLauncherException ex)
             {
                 MessageBox.Show(ex.Message);
             }
-}
+        }
+        private void Timer2_Tick(object sender, EventArgs e)
+        {
+                if (tools.ChangeTheTitle(TB.Text))//修改标题
+                {
+                    timer2.Stop();
+                }
+        }
     }
 }
