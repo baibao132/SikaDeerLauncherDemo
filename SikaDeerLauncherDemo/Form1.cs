@@ -24,22 +24,23 @@ namespace SikaDeerLauncherDemo
         mcbbs.mcbbsnews.API[] pIs = new mcbbs.mcbbsnews.API[0];
         private void Form1_Load(object sender, EventArgs e)
         {
+            comboBox4.SelectedIndex = 0;
             dlf.ThreadNum = 4;//线程数
             dlf.doSendMsg += SendMsgHander;//增加事件
 
-            if (mcbbsnews.News(ref news))//新闻
-            {
-                pictureBox1.ImageLocation = news[0].IMG;
-                timer1.Interval = 3000;
-                timer1.Start();
-            }
-            if (mcbbsnews.McbbsAPI(ref pIs))//api新闻
-            {
-                foreach (var p in pIs)
-                {
-                    listBox1.Items.AddRange(new object[] { p.title});
-                }
-            }
+            //if (mcbbsnews.News(ref news))//新闻
+            //{
+            //    pictureBox1.ImageLocation = news[0].IMG;
+            //    timer1.Interval = 3000;
+            //    timer1.Start();
+            //}
+            //if (mcbbsnews.McbbsAPI(ref pIs))//api新闻
+            //{
+            //    foreach (var p in pIs)
+            //    {
+            //        listBox1.Items.AddRange(new object[] { p.title});
+            //    }
+            //}
             try
             {
                 MCVersionList[] mc = tools.GetMCVersionList();//取mc列表
@@ -49,7 +50,7 @@ namespace SikaDeerLauncherDemo
                     listView1.Items.Add(list);
                 }
             }
-            catch (SikaDeerLauncher.SikaDeerLauncherException ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
@@ -131,6 +132,7 @@ namespace SikaDeerLauncherDemo
                 }
                 ap += a[i] + @"\";
             }
+            Console.WriteLine(ap);
             int id = listView2.Items.Count;
             ListViewItem item = listView2.Items.Add(new ListViewItem(new string[] { (listView2.Items.Count + 1).ToString(), name, "0%", "等待中", "0B/S" }));
             dlf.AddDown(url, ap, a[a.Length - 1], id);//增加下载
@@ -246,7 +248,7 @@ namespace SikaDeerLauncherDemo
             try
             {
                 OptiFineList[] lists = tools.GetOptiFineList(comboBox2.Text);//取OptiFine列表
-                tools.OptifineInstall(lists[0].mcversion,lists[0].patch);//OptiFine安装
+                tools.OptifineInstall(comboBox2.Text,lists[0].patch);//OptiFine安装
             }
             catch (SikaDeerLauncher.SikaDeerLauncherException ex)
             {
@@ -440,6 +442,10 @@ namespace SikaDeerLauncherDemo
         {
             System.Windows.Forms.Control.CheckForIllegalCrossThreadCalls = false;
             textBox3.Text += error.Message + "\n";
+            if (error.SeriousError != null)
+            {
+                MessageBox.Show("发生严重错误："+"\n"+error.SeriousError);
+            }
         }
         private void log(Game.Log log)
         {
@@ -491,5 +497,30 @@ namespace SikaDeerLauncherDemo
                     timer2.Stop();
                 }
         }
+
+        private void Button13_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                if (comboBox4.SelectedIndex == 0)
+                {
+                    tools.UninstallTheExpansionPack(ExpansionPack.Forge, comboBox2.Text);
+                }
+                else if (comboBox4.SelectedIndex == 1)
+                {
+                    tools.UninstallTheExpansionPack(ExpansionPack.Liteloader, comboBox2.Text);
+                }
+                else if (comboBox4.SelectedIndex == 2)
+                {
+                    tools.UninstallTheExpansionPack(ExpansionPack.Optifine, comboBox2.Text);
+                }
+                MessageBox.Show("卸载完成");
+            }
+            catch (SikaDeerLauncher.SikaDeerLauncherException ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+        }
+
     }
 }
