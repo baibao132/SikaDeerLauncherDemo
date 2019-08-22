@@ -28,19 +28,19 @@ namespace SikaDeerLauncherDemo
             dlf.ThreadNum = 4;//线程数
             dlf.doSendMsg += SendMsgHander;//增加事件
 
-            //if (mcbbsnews.News(ref news))//新闻
-            //{
-            //    pictureBox1.ImageLocation = news[0].IMG;
-            //    timer1.Interval = 3000;
-            //    timer1.Start();
-            //}
-            //if (mcbbsnews.McbbsAPI(ref pIs))//api新闻
-            //{
-            //    foreach (var p in pIs)
-            //    {
-            //        listBox1.Items.AddRange(new object[] { p.title});
-            //    }
-            //}
+            if (mcbbsnews.News(ref news))//新闻
+            {
+                pictureBox1.ImageLocation = news[0].IMG;
+                timer1.Interval = 3000;
+                timer1.Start();
+            }
+            if (mcbbsnews.McbbsAPI(ref pIs))//api新闻
+            {
+                foreach (var p in pIs)
+                {
+                    listBox1.Items.AddRange(new object[] { p.title });
+                }
+            }
             try
             {
                 MCVersionList[] mc = tools.GetMCVersionList();//取mc列表
@@ -155,9 +155,17 @@ namespace SikaDeerLauncherDemo
                     {
                         if (listView2.Items[id].SubItems[1].Text == "Forge")
                         {
-                            if (tools.ForgeInstallation(intall,intallverison))//forge安装
+                            listView2.Items[id].SubItems[3].Text = "安装中";
+                            try
                             {
-                                MessageBox.Show("Forge安装成功");
+                                if (tools.ForgeInstallation(intall, intallverison, java.Text))//forge安装
+                                {
+                                    MessageBox.Show("Forge安装成功");
+                                }
+                            }
+                            catch (SikaDeerLauncher.SikaDeerLauncherException ex)
+                            {
+                                MessageBox.Show(ex.Message);
                             }
                         }
                         listView2.Items[id].SubItems[3].Text = "下载完成";
@@ -521,6 +529,5 @@ namespace SikaDeerLauncherDemo
                 MessageBox.Show(ex.Message);
             }
         }
-
     }
 }
